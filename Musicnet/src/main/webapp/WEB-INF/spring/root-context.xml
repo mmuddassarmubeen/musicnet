@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+		
+		
+	<security:http pattern="/resources/**" security="none"/>
+	<security:http pattern="/webjars/**" security="none"/>
+	<security:http pattern="/login" security="none"/>
+	<security:http pattern="/error/**" security="none"/>		
+	<security:http auto-config="false" use-expressions="true">
+		<security:access-denied-handler error-page="/403" />
+		<security:form-login 
+		    login-page="/login" 
+		    authentication-success-handler-ref="myAuthenticationSuccessHandler"
+			authentication-failure-url="/login?error" 
+			username-parameter="username"
+			password-parameter="password" />
+		<security:logout logout-success-url="/login?logout" logout-url="/j_spring_security_logout" />
+		<security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')" />
+		<security:intercept-url pattern="/musician/**" access="hasRole('ROLE_USER')" />
+		<security:intercept-url pattern="/common/**" access="permitAll" />
+		<!-- enable csrf protection -->
+	</security:http>	
+		
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="userDetailsService">
+		</security:authentication-provider>
+	</security:authentication-manager>	
+	
+	<bean id="userDao" class="com.neu.musicnet.dao.UserDao"></bean>
+	<bean id="eventDao" class="com.neu.musicnet.dao.EventDao"></bean>
+	<bean id="scheduleDao" class="com.neu.musicnet.dao.ScheduleDao"></bean>
+	<bean id="skillDao" class="com.neu.musicnet.dao.SkillDao"></bean>
+	<bean id="accountRequestDao" class="com.neu.musicnet.dao.AccountDao"></bean>
+	<bean id="roleDao" class="com.neu.musicnet.dao.RoleDao"></bean>
+	<bean id="eventValidator" class="com.neu.musicnet.validators.EventValidator"></bean>
+	
+	<bean id="userDetailsService" class="com.neu.musicnet.services.MusicnetUserDetailsService">
+		<property name="userDao" ref="userDao"></property>
+	</bean>
+	<bean id="myAuthenticationSuccessHandler"
+        class="com.neu.musicnet.services.UrlAuthenticationSuccessHandler" />
+        
+        
+		
+</beans>
